@@ -1,0 +1,86 @@
+p{
+    font-weight: bold;
+    font-size: 16px;
+}
+
+
+#top{
+    text-decoration: underline;
+}
+
+
+.emphasizeText{
+    font-style: italic;
+    color: red;
+}
+
+
+body{
+    background-color: rgb(219, 219, 219);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    border: 5px solid black;
+    margin: 20px;
+    padding: 20px;
+}
+
+
+body {
+  background-color: #e4e4e4;
+  font-family: Arial, sans-serif;
+  color: #222222;
+  margin: 0;
+  padding: 0;
+}
+
+
+.header {
+  text-align: center;
+  padding: 20px;
+  background-color: #c9a9cf;
+}
+
+
+.video-section {
+  text-align: center;
+  margin: 30px auto;
+}
+
+
+.players-section {
+  width: 60%;
+  margin: 0 auto;
+  text-align: center;
+  background-color: #e6d6e8;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+
+.players-section h2 {
+  color: darkblue;
+  font-family: Georgia, serif;
+}
+
+
+ul, ol {
+  list-style-position: inside;
+  padding: 0;
+}
+
+
+li {
+  margin-bottom: 10px;
+}
+
+
+strong {
+  color: maroon;
+  font-family: Verdana, sans-serif;
+}
+
+.graph-section {
+  width: 600px;
+  margin: 20px auto;
+  text-align: center;
+}

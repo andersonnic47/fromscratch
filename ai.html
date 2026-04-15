@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historical Hangman</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      background: linear-gradient(to bottom, #f4e7c5, #d8c39a);
+      color: #3b2a1a;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 30px;
+      background-color: rgba(255, 248, 220, 0.9);
+      border: 6px double #6b4f2a;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(59, 42, 26, 0.3);
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+      color: #5a3b1d;
+      text-shadow: 2px 2px #d9c09a;
+    }
+
+    p {
+      font-size: 20px;
+      margin: 10px 0;
+    }
+
+    .subtitle {
+      font-style: italic;
+      margin-bottom: 25px;
+    }
+
+    .hangman-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px 0;
+    }
+
+    pre {
+      font-size: 20px;
+      line-height: 1.2;
+      background-color: #f8efd8;
+      border: 2px solid #8b6b3f;
+      padding: 15px 25px;
+      border-radius: 10px;
+      display: inline-block;
+      text-align: left;
+    }
+
+    .phrase {
+      font-size: 34px;
+      letter-spacing: 8px;
+      margin: 25px 0;
+      font-weight: bold;
+      word-wrap: break-word;
+    }
+
+    .info {
+      font-size: 22px;
+      margin: 15px 0;
+    }
+
+    .letters {
+      margin-top: 20px;
+    }
+
+    .letters button {
+      margin: 5px;
+      padding: 12px 16px;
+      font-size: 18px;
+      font-family: Georgia, "Times New Roman", serif;
+      background-color: #8b6b3f;
+      color: #fff8dc;
+      border: 2px solid #5a3b1d;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .letters button:hover {
+      background-color: #6d4d28;
+    }
+
+    .letters button:disabled {
+      background-color: #b9a27d;
+      color: #eee;
+      cursor: not-allowed;
+    }
+
+    .message {
+      font-size: 28px;
+      margin: 20px 0;
+      min-height: 40px;
+      color: #7a1f1f;
+      font-weight: bold;
+    }
+
+    .reset-btn {
+      margin-top: 15px;
+      padding: 14px 24px;
+      font-size: 20px;
+      font-family: Georgia, "Times New Roman", serif;
+      background-color: #5a3b1d;
+      color: #fff8dc;
+      border: 2px solid #3b2a1a;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .reset-btn:hover {
+      background-color: #3b2a1a;
+    }
+
+    .footer-note {
+      margin-top: 25px;
+      font-size: 18px;
+      font-style: italic;
+      color: #5f4630;
+    }
+
+    @media (max-width: 700px) {
+      .phrase {
+        font-size: 24px;
+        letter-spacing: 4px;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+
+      .letters button {
+        padding: 10px 12px;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Historical Hangman</h1>
+    <p class="subtitle">Guess the famous phrase before the republic falls.</p>
+
+    <div class="hangman-box">
+      <pre id="hangmanDrawing"></pre>
+    </div>
+
+    <p class="info">Phrase:</p>
+    <div class="phrase" id="phraseDisplay"></div>
+
+    <p class="info">Wrong guesses left: <span id="guessesLeft"></span></p>
+    <p class="info">Guessed letters: <span id="guessedLetters">None</span></p>
+
+    <div class="message" id="message"></div>
+
+    <div class="letters" id="letters"></div>
+
+    <button class="reset-btn" onclick="startGame()">New Historical Phrase</button>
+
+    <p class="footer-note">Featuring historically important phrases from pivotal moments in history.</p>
+  </div>
+
+  <script>
+    const phrases = [
+      "the declaration of independence",
+      "we the people",
+      "give me liberty or give me death",
+      "four score and seven years ago",
+      "government of the people by the people for the people",
+      "life liberty and the pursuit of happiness",
+      "ask not what your country can do for you",
+      "a house divided against itself cannot stand",
+      "i have a dream",
+      "speak softly and carry a big stick"
+    ];
+
+    const hangmanStages = [
+`  +---+
+  |   |
+      |
+      |
+      |
+      |
+=========`,
+`  +---+
+  |   |
+  O   |
+      |
+      |
+      |
+=========`,
+`  +---+
+  |   |
+  O   |
+  |   |
+      |
+      |
+=========`,
+`  +---+
+  |   |
+  O   |
+ /|   |
+      |
+      |
+=========`,
+`  +---+
+  |   |
+  O   |
+ /|\\  |
+      |
+      |
+=========`,
+`  +---+
+  |   |
+  O   |
+ /|\\  |
+ /    |
+      |
+=========`,
+`  +---+
+  |   |
+  O   |
+ /|\\  |
+ / \\  |
+      |
+=========`
+    ];
+
+    let chosenPhrase = "";
+    let guessed = [];
+    let wrongGuesses = 0;
+    const maxWrong = 6;
+
+    function startGame() {
+      chosenPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+      guessed = [];
+      wrongGuesses = 0;
+      document.getElementById("message").textContent = "";
+      createLetterButtons();
+      updateDisplay();
+    }
+
+    function createLetterButtons() {
+      const lettersDiv = document.getElementById("letters");
+      lettersDiv.innerHTML = "";
+
+      for (let i = 65; i <= 90; i++) {
+        const letter = String.fromCharCode(i).toLowerCase();
+        const button = document.createElement("button");
+        button.textContent = letter.toUpperCase();
+        button.onclick = function() {
+          guessLetter(letter, button);
+        };
+        lettersDiv.appendChild(button);
+      }
+    }
+
+    function guessLetter(letter, button) {
+      button.disabled = true;
+      guessed.push(letter);
+
+      if (!chosenPhrase.includes(letter)) {
+        wrongGuesses++;
+      }
+
+      updateDisplay();
+      checkGameStatus();
+    }
+
+    function updateDisplay() {
+      let display = "";
+
+      for (let char of chosenPhrase) {
+        if (char === " ") {
+          display += " / ";
+        } else if (guessed.includes(char)) {
+          display += char.toUpperCase() + " ";
+        } else {
+          display += "_ ";
+        }
+      }
+
+      document.getElementById("phraseDisplay").textContent = display;
+      document.getElementById("guessesLeft").textContent = maxWrong - wrongGuesses;
+      document.getElementById("guessedLetters").textContent = guessed.length ? guessed.map(l => l.toUpperCase()).join(", ") : "None";
+      document.getElementById("hangmanDrawing").textContent = hangmanStages[wrongGuesses];
+    }
+
+    function checkGameStatus() {
+      const uniqueLetters = [...new Set(chosenPhrase.replace(/ /g, "").split(""))];
+      const won = uniqueLetters.every(letter => guessed.includes(letter));
+
+      if (won) {
+        document.getElementById("message").textContent = "Victory! You preserved the phrase of history.";
+        disableAllButtons();
+      } else if (wrongGuesses >= maxWrong) {
+        document.getElementById("message").textContent = "Defeat! The phrase was: " + chosenPhrase.toUpperCase();
+        disableAllButtons();
+      }
+    }
+
+    function disableAllButtons() {
+      const buttons = document.querySelectorAll(".letters button");
+      buttons.forEach(button => button.disabled = true);
+    }
+
+    startGame();
+  </script>
+</body>
+</html>
